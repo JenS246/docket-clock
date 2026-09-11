@@ -50,8 +50,8 @@ test('case bank has multi-court, multi-year, and subject variety', () => {
 
 test('active bank has a substantial complaint-first pool', () => {
   const complaintFirst = cases.filter((item) => item.initialFilingDate && item.startDate === item.initialFilingDate);
-  assert.ok(complaintFirst.length >= 60);
-  assert.ok(complaintFirst.filter((item) => item.familiarity === 'Household Name').length >= 15);
+  assert.ok(complaintFirst.length >= 75);
+  assert.ok(complaintFirst.filter((item) => item.familiarity === 'Household Name').length >= 30);
   assert.ok(complaintFirst.some((item) => item.elapsedMonths >= 84));
 });
 
@@ -64,7 +64,33 @@ test('all specifically requested landmark cases are present', () => {
 
 test('recognizable complaint-to-resolution cases are present', () => {
   const names = cases.map((item) => item.caseName);
-  for (const familiar of ['Brown v. Board', 'United States v. Microsoft', 'Dominion Voting Systems v. Fox', 'Deepwater Horizon', 'Trump University', 'Waymo LLC v. Uber', 'Epic Games, Inc. v. Apple', 'National Football League Players', 'Volkswagen AG', 'Apple Inc. v. Samsung']) {
+  for (const familiar of [
+    'Brown v. Board',
+    'United States v. Microsoft',
+    'Dominion Voting Systems v. Fox',
+    'Deepwater Horizon',
+    'Trump University',
+    'Waymo LLC v. Uber',
+    'Epic Games, Inc. v. Apple',
+    'National Football League Players',
+    'Volkswagen AG',
+    'Apple Inc. v. Samsung',
+    'Liebeck v. McDonald',
+    'John C. Depp II v. Amber Laura Heard',
+    'Sandy Hook',
+    'George Floyd',
+    'Breonna Taylor',
+    'People of the State of New York v. Donald J. Trump',
+    'Sines v. Kessler',
+    'Equifax Inc.',
+    'Facebook Biometric',
+    'Flint Water',
+    'Enron Corporation',
+    'JUUL Labs',
+    'Terry Gene Bollea v. Gawker',
+    'David Mueller v. Taylor Swift',
+    'Scarlett Johansson v. The Walt Disney Company',
+  ]) {
     assert.ok(names.some((name) => name.includes(familiar)), familiar);
   }
 });
