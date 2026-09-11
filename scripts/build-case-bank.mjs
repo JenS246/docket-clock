@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const OYEZ_API = 'https://api.oyez.org';
 const WIKI_API = 'https://en.m.wikipedia.org/w/api.php';
@@ -141,7 +141,27 @@ const lowerCourtTitles = [
   'PepsiCo, Inc. v. Redmond', 'Rockwell Graphic Systems, Inc. v. DEV Industries, Inc.',
 ];
 
+const recognizableLawsuitTitles = [
+  "Liebeck v. McDonald's Restaurants", 'Grimshaw v. Ford Motor Co.', 'Anderson v. Cryovac, Inc.',
+  'Depp v. Heard', 'Bollea v. Gawker', 'Carroll v. Trump', 'Dominion Voting Systems v. Fox News Network',
+  'Apple Inc. v. Samsung Electronics Co.', 'Epic Games v. Apple', 'Epic Games v. Google',
+  'Waymo v. Uber', 'Authors Guild, Inc. v. Google, Inc.', 'FTC v. Meta', 'United States v. Microsoft Corp.',
+  'Facebook, Inc. v. Power Ventures, Inc.', 'High-Tech Employee Antitrust Litigation',
+  'In re Equifax, Inc., Customer Data Security Breach Litigation', 'In re Target Corporation Customer Data Security Breach Litigation',
+  'National Prescription Opiate Litigation', 'In re Purdue Pharma L.P.', 'NFL concussion settlement',
+  "O'Bannon v. NCAA", 'House v. NCAA', 'Vioxx litigation', 'Dalkon Shield',
+  'Toyota unintended acceleration cases', 'General Motors ignition switch recalls',
+  'Johnson & Johnson talc litigation', '3M Combat Arms Earplug litigation', 'Monsanto legal cases',
+  'Hinkley groundwater contamination', 'Exxon Valdez oil spill', 'Deepwater Horizon litigation',
+  'In re Deepwater Horizon', 'Volkswagen emissions scandal', 'Agent Orange class action lawsuit',
+  'United States v. Philip Morris USA Inc.', 'Tobacco Master Settlement Agreement',
+  'Sandy Hook Elementary School shooting conspiracy theories litigation', 'Trump University lawsuits',
+  'Ed Sheeran copyright cases', 'Taylor Swift sexual assault trial', 'Scarlett Johansson v. Disney',
+];
+
 const lowerCourtCategories = [
+  'Lawsuits in the United States',
+  'United States class action case law',
   'United States tort case law',
   'United States contract case law',
   'United States copyright case law',
@@ -157,15 +177,17 @@ const lowerCourtCategories = [
   'United States discrimination case law',
   'Education case law in the United States',
   'United States free speech case law',
-  'United States class action case law',
   'United States defamation case law',
 ];
 
 const householdPatterns = [
-  /Brown v\./i, /Roe v\./i, /Bush v\. Gore/i, /Obergefell/i, /Loving v\./i,
+  /Brown v\. Board/i, /Roe v\./i, /Bush v\. Gore/i, /Obergefell/i, /Loving v\./i,
   /McDonald/i, /Facebook/i, /Google/i, /Apple/i, /NFL/i, /Disney/i, /Depp/i,
   /Taylor Swift|Swift/i, /Gawker/i, /Ford Motor/i, /Coca-Cola/i, /Pepsi/i,
   /New York Times/i, /Volkswagen/i, /Exxon/i, /Deepwater/i, /Tobacco/i,
+  /Dominion Voting|Alex Jones|Trump University|Equifax|Target Corporation|Yahoo/i,
+  /Purdue Pharma|Opioid|Monsanto|Roundup|Johnson & Johnson|3M Combat Arms/i,
+  /Epic Games|Microsoft|Uber|Waymo|NCAA|Simpson|Meta/i,
 ];
 
 const classicPatterns = [
@@ -226,6 +248,10 @@ function datedEventFromText(wikitext) {
   const text = stripWiki(wikitext);
   const date = '([A-Z][a-z]+\\s+\\d{1,2},\\s+\\d{4})';
   const patterns = [
+    { label: 'Complaint filed', regex: new RegExp(`(?:filed|lodged|commenced|brought)[^.]{0,100}?(?:complaint|lawsuit|suit|action|petition|case)[^.]{0,100}?(?:on\\s+)?${date}`, 'i') },
+    { label: 'Complaint filed', regex: new RegExp(`(?:complaint|lawsuit|suit|action|petition|case)[^.]{0,100}?(?:was\\s+)?(?:filed|lodged|commenced|brought)[^.]{0,80}?(?:on\\s+)?${date}`, 'i') },
+    { label: 'Complaint filed', regex: new RegExp(`(?:on\\s+)?${date}[^.]{0,120}?(?:filed|lodged|commenced|brought)[^.]{0,80}?(?:complaint|lawsuit|suit|action|petition|case)`, 'i') },
+    { label: 'Complaint filed', regex: new RegExp(`(?:on\\s+)?${date}[^.]{0,120}?(?:sued|filed against)`, 'i') },
     { label: 'Complaint filed', regex: new RegExp(`(?:complaint|lawsuit|suit|action|petition)[^.]{0,100}?(?:filed|commenced|brought)[^.]{0,60}?${date}`, 'i') },
     { label: 'Complaint filed', regex: new RegExp(`${date}[^.]{0,80}?(?:complaint|lawsuit|suit|action|petition)[^.]{0,60}?(?:filed|commenced|brought)`, 'i') },
     { label: 'Underlying incident', regex: new RegExp(`(?:incident|accident|collision|spill|explosion|injur(?:y|ed)|arrest)[^.]{0,100}?(?:on\\s+)?${date}`, 'i') },
@@ -364,7 +390,8 @@ async function buildLowerCourtRecord(title) {
   const argueDate = parseDate(field(wiki, ['ArgueDate', 'ArguedDate', 'DateArgued']), field(wiki, ['ArgueYear', 'ArguedYear']));
   const decideDate = parseDate(field(wiki, ['DecideDate', 'DecisionDate', 'DateDecided']), field(wiki, ['DecideYear', 'DecisionYear']));
   if (!argueDate || !decideDate || decideDate <= argueDate) return null;
-  const court = stripWiki(field(wiki, ['Court'])) || 'U.S. appellate court';
+  const extractedCourt = stripWiki(field(wiki, ['Court']));
+  const court = extractedCourt && extractedCourt.length < 120 && !/[|{}=]/.test(extractedCourt) ? extractedCourt : 'U.S. appellate court';
   const citation = stripWiki(field(wiki, ['Citations', 'Citation']));
   const holding = stripWiki(field(wiki, ['Holding', 'Decision'])) || `The court issued its decision in ${new Date(decideDate).getUTCFullYear()}.`;
   const html = parsed.text['*'];
@@ -390,18 +417,25 @@ async function buildLowerCourtRecord(title) {
 
 function lowerRecordFromPage(page) {
   const wiki = page.revisions?.[0]?.slots?.main?.content || page.revisions?.[0]?.slots?.main?.['*'] || '';
-  const isInternationalShoe = /^International Shoe/i.test(page.title || '');
-  if (!wiki || (/Infobox SCOTUS case/i.test(wiki) && !isInternationalShoe)) return null;
+  const isSupremeCourtCase = /Infobox SCOTUS case/i.test(wiki);
+  if (!wiki) return null;
   const argueDate = parseDateFields(field(wiki, ['ArgueDate', 'ArguedDate', 'DateArgued']), field(wiki, ['ArgueYear', 'ArguedYear']));
-  const proceedingDate = parseDateFields(field(wiki, ['StartDate', 'Start Date', 'DateFiled', 'Date Filed', 'FilingDate', 'Filing Date', 'Filed']), '');
-  const textEvent = datedEventFromText(wiki);
-  const startDate = argueDate || proceedingDate || textEvent?.date;
-  const startLabel = argueDate ? 'Oral argument' : proceedingDate ? 'Proceedings began' : textEvent?.label;
+  const explicitFilingDate = parseDateFields(field(wiki, ['DateFiled', 'Date Filed', 'FilingDate', 'Filing Date', 'ComplaintDate', 'Complaint Date']), '');
+  const proceedingDate = parseDateFields(field(wiki, ['StartDate', 'Start Date']), '');
+  const introEvent = datedEventFromText(page.extract || '');
+  const textEvent = introEvent?.label === 'Complaint filed' ? introEvent : datedEventFromText(wiki);
+  const initialFilingDate = explicitFilingDate || (textEvent?.label === 'Complaint filed' ? textEvent.date : null);
+  if (isSupremeCourtCase && !initialFilingDate) return null;
+  const startDate = initialFilingDate || argueDate || proceedingDate || textEvent?.date;
+  const startLabel = initialFilingDate ? 'Initial complaint filed' : argueDate ? 'Oral argument' : proceedingDate ? 'Proceedings began' : textEvent?.label;
   const decideDate = parseDateFields(field(wiki, ['DecideDate', 'DecisionDate', 'DateDecided', 'Date Decided', 'EndDate', 'End Date']), field(wiki, ['DecideYear', 'DecisionYear']));
   if (!startDate || !startLabel || !decideDate || decideDate <= startDate) return null;
   const elapsedMonths = calendarMonths(startDate, decideDate);
   if (startLabel === 'Oral argument' && elapsedMonths > 18) return null;
-  const court = stripWiki(field(wiki, ['Court'])) || 'U.S. appellate court';
+  const extractedCourt = stripWiki(field(wiki, ['Court']));
+  const court = extractedCourt && extractedCourt.length < 120 && !/[|{}=]/.test(extractedCourt)
+    ? extractedCourt
+    : isSupremeCourtCase ? 'U.S. Supreme Court' : 'U.S. court identified in source';
   const citation = stripWiki(field(wiki, ['Citations', 'Citation']));
   const holding = stripWiki(field(wiki, ['Holding', 'Decision'])) || `The court issued its decision in ${new Date(decideDate).getUTCFullYear()}.`;
   const extractedName = stripWiki(field(wiki, ['Litigants', 'CaseName', 'FullName']));
@@ -410,17 +444,19 @@ function lowerRecordFromPage(page) {
   const summary = sourceSummary.match(/^[^.!?]*[.!?]/)?.[0] || sourceSummary || holding;
   const subject = categoryFor(name, `${summary} ${holding}`);
   const courtListenerSearch = `https://www.courtlistener.com/?q=${encodeURIComponent(`\"${name}\"`)}&type=o&order_by=score%20desc`;
+  const citationMatch = citation.match(/(\d+)\s+U\.S\.\s+(\d+)/i);
+  const supremeCourtSource = citationMatch ? `https://supreme.justia.com/cases/federal/us/${citationMatch[1]}/${citationMatch[2]}/` : null;
   return {
     id: `lower-${slugify(page.title)}`, litigationId: `wiki-${page.pageid}`, caseName: name,
-    shortName: name.split(' v. ')[0], citation, summary, subject, categories: isInternationalShoe ? [subject, 'Civil Litigation Classics', 'Supreme Court Cases'] : [subject, 'Civil Litigation Classics'],
+    shortName: name.split(' v. ')[0], citation, summary, subject, categories: isSupremeCourtCase ? [subject, 'Civil Litigation Classics', 'Supreme Court Cases'] : [subject, 'Civil Litigation Classics'],
     familiarity: familiarity(name, summary), startEvent: startLabel === 'Oral argument' ? `Oral argument before ${court}` : startLabel, startDate,
-    initialFilingDate: null,
-    initialFilingDateNote: 'The source verifies this appellate interval but does not reliably identify the original complaint date.',
-    endpoint: `Decision by ${court}`, endpointDate: decideDate, elapsedMonths,
-    events: [{ date: startDate, label: startLabel, court }, { date: decideDate, label: 'Decision', court }], courts: [court],
-    outcome: holding, durationExplanation: startLabel === 'Oral argument' ? 'The measured interval covers the court’s consideration after oral argument and before its published decision.' : 'The measured interval covers the documented start of this proceeding through the published decision.',
-    teachingNote: startLabel === 'Oral argument' ? 'Appellate timing is only one part of the case. Trial-level proceedings occurred before this measured interval.' : 'A court decision is an important milestone, but enforcement or later appeals may continue afterward.',
-    primarySources: [isInternationalShoe ? 'https://supreme.justia.com/cases/federal/us/326/310/' : courtListenerSearch], secondarySources: [page.fullurl], verificationStatus: 'Verified', lastReviewed: REVIEWED_ON,
+    initialFilingDate,
+    initialFilingDateNote: initialFilingDate ? undefined : 'The source verifies this interval but does not identify the original complaint date.',
+    endpoint: isSupremeCourtCase ? 'U.S. Supreme Court decision' : `Decision by ${court}`, endpointDate: decideDate, elapsedMonths,
+    events: [{ date: startDate, label: startLabel, court: initialFilingDate ? 'Originating court identified in source' : court }, { date: decideDate, label: 'Decision', court }], courts: [court],
+    outcome: holding, durationExplanation: initialFilingDate ? 'The measured interval begins with the initial complaint and includes the trial-level and appellate path to this decision.' : startLabel === 'Oral argument' ? 'The measured interval covers the court’s consideration after oral argument and before its published decision.' : 'The measured interval covers the documented start of this proceeding through the published decision.',
+    teachingNote: initialFilingDate ? 'The reported decision is only the visible endpoint. Pleadings, discovery, motions, trial work, and appeals may account for much of the elapsed time.' : startLabel === 'Oral argument' ? 'Appellate timing is only one part of the case. Trial-level proceedings occurred before this measured interval.' : 'A court decision is an important milestone, but enforcement or later appeals may continue afterward.',
+    primarySources: [supremeCourtSource || courtListenerSearch], secondarySources: [page.fullurl], verificationStatus: 'Verified', lastReviewed: REVIEWED_ON,
   };
 }
 
@@ -452,8 +488,9 @@ async function buildLowerCourtRecords() {
       if (supplemental) records.push(supplemental);
     }
   };
-  for (let offset = 0; offset < lowerCourtTitles.length; offset += 40) {
-    const titles = lowerCourtTitles.slice(offset, offset + 40).join('|');
+  const sourceTitles = [...new Set([...recognizableLawsuitTitles, ...lowerCourtTitles, ...wantedSupremeCourtCases])];
+  for (let offset = 0; offset < sourceTitles.length; offset += 40) {
+    const titles = sourceTitles.slice(offset, offset + 40).join('|');
     const params = new URLSearchParams({
       action: 'query', titles, prop: 'revisions|extracts|info', rvprop: 'content', rvslots: 'main',
       exintro: '1', explaintext: '1', inprop: 'url', redirects: '1', formatversion: '2', format: 'json',
@@ -479,17 +516,23 @@ async function buildLowerCourtRecords() {
 }
 
 async function main() {
+  const curated = JSON.parse(await readFile(new URL('../data/curated-filing-cases.json', import.meta.url), 'utf8'));
   const lower = await buildLowerCourtRecords();
   const oyez = await buildOyezRecords();
-  const merged = [...lower.slice(0, 100), ...oyez].filter((record, index, all) => all.findIndex((item) => titleKey(item.caseName) === titleKey(record.caseName)) === index).slice(0, 220);
+  const rankedLower = [...lower].sort((a, b) => {
+    const score = (item) => (item.initialFilingDate ? 1000 : 0) + (item.familiarity === 'Household Name' ? 200 : 0) + Math.min(item.elapsedMonths, 120);
+    return score(b) - score(a);
+  });
+  const merged = [...curated, ...rankedLower.slice(0, 140), ...oyez].filter((record, index, all) => all.findIndex((item) => titleKey(item.caseName) === titleKey(record.caseName)) === index).slice(0, 220);
   if (merged.length < 200) throw new Error(`Only ${merged.length} verified records were built; at least 200 are required.`);
   await mkdir(new URL('../data/', import.meta.url), { recursive: true });
   await writeFile(new URL('../data/cases.json', import.meta.url), `${JSON.stringify(merged, null, 2)}\n`);
   const counts = merged.reduce((memo, record) => {
     memo[record.categories.includes('Supreme Court Cases') ? 'Supreme Court' : 'Other courts'] += 1;
+    if (record.initialFilingDate) memo['Initial complaint intervals'] += 1;
     memo[record.familiarity] = (memo[record.familiarity] || 0) + 1;
     return memo;
-  }, { 'Supreme Court': 0, 'Other courts': 0 });
+  }, { 'Supreme Court': 0, 'Other courts': 0, 'Initial complaint intervals': 0 });
   console.log(JSON.stringify({ total: merged.length, ...counts }, null, 2));
 }
 

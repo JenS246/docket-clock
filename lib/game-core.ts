@@ -146,9 +146,13 @@ export function selectCases(
   recentlyShown: string[] = [],
   random: () => number = Math.random,
 ) {
-  const verified = cases.filter((item) => item.verificationStatus === 'Verified');
-  let pool = poolForCategory(verified, category);
-  if (pool.length < gameLength) pool = verified;
+  const filingToEndpoint = cases.filter((item) =>
+    item.verificationStatus === 'Verified'
+    && Boolean(item.initialFilingDate)
+    && item.startDate === item.initialFilingDate,
+  );
+  let pool = poolForCategory(filingToEndpoint, category);
+  if (pool.length < gameLength) pool = filingToEndpoint;
   const recent = new Set(recentlyShown);
   const fresh = pool.filter((item) => !recent.has(item.id));
   const candidates = shuffle(fresh.length >= gameLength ? fresh : pool, random);

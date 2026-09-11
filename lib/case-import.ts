@@ -44,7 +44,8 @@ export function validateCaseRecords(records: unknown[], existing: CaseRecord[] =
     if (!Array.isArray(item.primarySources) || !item.primarySources.length) issues.push({ row, id, severity: 'error', message: 'At least one source link is required.' });
     if (!Array.isArray(item.events) || item.events.length < 2) issues.push({ row, id, severity: 'error', message: 'Procedural timeline needs at least two dated events.' });
     if (!Array.isArray(item.courts) || !item.courts.length) issues.push({ row, id, severity: 'error', message: 'At least one court is required.' });
-    if (!item.initialFilingDate) issues.push({ row, id, severity: 'warning', message: 'Initial complaint date is not established for this appellate interval.' });
+    if (!item.initialFilingDate) issues.push({ row, id, severity: 'error', message: 'An exact initial complaint date is required for gameplay.' });
+    if (item.initialFilingDate && item.initialFilingDate !== item.startDate) issues.push({ row, id, severity: 'error', message: 'The playable start date must match the initial complaint date.' });
     if (item.verificationStatus !== 'Verified') issues.push({ row, id, severity: 'warning', message: 'Only Verified records appear in gameplay.' });
   });
   return issues;

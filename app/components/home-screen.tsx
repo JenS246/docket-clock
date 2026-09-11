@@ -34,7 +34,7 @@ export default function HomeScreen(props: Props) {
         <div className="hero-copy">
           <p className="eyebrow">A civil litigation guessing game</p>
           <h1>How long did justice take?</h1>
-          <p className="hero-subtitle">Guess the time between two real events, then see how the case moved.</p>
+          <p className="hero-subtitle">Guess the time from the first complaint to a major decision or final resolution, then see the full path.</p>
           <fieldset className="length-picker">
             <legend>Choose a game</legend>
             {[5, 10].map((length) => (
@@ -65,7 +65,7 @@ export default function HomeScreen(props: Props) {
         </div>
       </section>
       <div className="home-footnote">
-        <span>{props.caseCount} sourced intervals</span>
+        <span>{props.caseCount} complaint-first timelines</span>
         <button className="text-button" type="button" onClick={props.onExplore}>Explore the cases</button>
         <button className="text-button" type="button" onClick={props.onManage}>Manage case data</button>
       </div>
@@ -73,8 +73,8 @@ export default function HomeScreen(props: Props) {
         <button className="dialog-close" type="button" onClick={() => howDialog.current?.close()}>Close</button>
         <h2 id="how-title">Make one time estimate.</h2>
         <ol>
-          <li>Read the starting event and date.</li>
-          <li>Estimate the time to the hidden endpoint.</li>
+          <li>See when the first complaint was filed.</li>
+          <li>Estimate the time to the hidden decision or resolution.</li>
           <li>Reveal the real timeline and learn what happened.</li>
         </ol>
         <p>You can move the slider with touch, mouse, or arrow keys. Skipping an unfamiliar case never changes your score.</p>

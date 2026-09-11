@@ -18,6 +18,7 @@ import CaseManager from './case-manager';
 import HomeScreen from './home-screen';
 
 const CASES = caseBank as CaseRecord[];
+const COMPLAINT_FIRST_COUNT = CASES.filter((item) => item.initialFilingDate && item.startDate === item.initialFilingDate).length;
 const ROUND_COLORS = ['#ff5d45', '#7367f0', '#009b77', '#ed3f82', '#147cc1', '#dc7d09'];
 type Screen = 'home' | 'round' | 'results' | 'library' | 'manage';
 
@@ -84,7 +85,7 @@ export default function GameApp() {
   };
 
   if (screen === 'home') {
-    return <HomeScreen caseCount={CASES.length} category={category} gameLength={gameLength} onCategory={setCategory} onExplore={() => setScreen('library')} onLength={setGameLength} onManage={() => setScreen('manage')} onStart={startGame} />;
+    return <HomeScreen caseCount={COMPLAINT_FIRST_COUNT} category={category} gameLength={gameLength} onCategory={setCategory} onExplore={() => setScreen('library')} onLength={setGameLength} onManage={() => setScreen('manage')} onStart={startGame} />;
   }
   if (screen === 'library') return <CaseLibrary onBack={() => setScreen('home')} />;
   if (screen === 'manage') return <CaseManager onBack={() => setScreen('home')} />;
@@ -101,6 +102,7 @@ export default function GameApp() {
       <section className="case-layout" aria-labelledby="case-name">
         <article className="case-copy">
           <p className="case-category">{currentCase.subject}</p>
+          <p className="interval-badge">Complaint to {currentCase.endpoint}</p>
           <h1 id="case-name">{currentCase.caseName}</h1>
           <p className="case-summary">{currentCase.summary}</p>
           <dl className="measure-card">
@@ -110,7 +112,7 @@ export default function GameApp() {
         </article>
         {!result ? (
           <form className="guess-panel" onSubmit={(event) => { event.preventDefault(); submitGuess(); }}>
-            <label htmlFor="duration">How long did it take?</label>
+            <label htmlFor="duration">How long from filing to this endpoint?</label>
             <output htmlFor="duration" className="guess-output" aria-live="polite"><strong>{Math.floor(guess / 12)}</strong> years <strong>{guess % 12}</strong> months</output>
             <input id="duration" type="range" min="0" max="360" step="1" value={guess} onChange={(event) => setGuess(Number(event.target.value))} aria-valuetext={formatDuration(guess)} />
             <div className="range-labels" aria-hidden="true"><span>0</span><span>15 years</span><span>30 years</span></div>
@@ -138,7 +140,7 @@ function RevealPanel({ result, onNext, isLast }: { result: RoundResult; onNext: 
         <div><span>Actual time</span><strong>{formatDuration(item.elapsedMonths, true)}</strong></div>
         <div><span>Points</span><strong>+{result.score.toLocaleString()}</strong></div>
       </div>
-      <p className="measurement">This round measures {item.startEvent.toLowerCase()} on {formatDate(item.startDate)} to {item.endpoint.toLowerCase()} on {formatDate(item.endpointDate)}.</p>
+      <p className="measurement">This round starts with the filing on {formatDate(item.startDate)} and runs to {item.endpoint.toLowerCase()} on {formatDate(item.endpointDate)}.</p>
       <ol className="timeline" aria-label="Procedural timeline">{item.events.map((event, index) => <li key={`${event.date}-${index}`}><time dateTime={event.date}>{formatDate(event.date)}</time><strong>{event.label}</strong><span>{event.court}</span></li>)}</ol>
       <details><summary>Outcome and timing</summary><p>{item.outcome}</p><p>{item.durationExplanation}</p></details>
       <aside className="teaching-note"><strong>Litigation note</strong><p>{item.teachingNote}</p></aside>

@@ -26,6 +26,7 @@ test('selection avoids duplicate cases and litigations', () => {
   assert.equal(selected.length, 10);
   assert.equal(new Set(selected.map((item) => item.id)).size, 10);
   assert.equal(new Set(selected.map((item) => item.litigationId)).size, 10);
+  assert.ok(selected.every((item) => item.initialFilingDate && item.startDate === item.initialFilingDate));
 });
 
 test('case bank contains 200-plus sourced verified intervals', () => {
@@ -47,10 +48,24 @@ test('case bank has multi-court, multi-year, and subject variety', () => {
   assert.ok(cases.every((item) => !item.startEvent.startsWith('Oral argument') || item.elapsedMonths <= 18));
 });
 
+test('active bank has a substantial complaint-first pool', () => {
+  const complaintFirst = cases.filter((item) => item.initialFilingDate && item.startDate === item.initialFilingDate);
+  assert.ok(complaintFirst.length >= 60);
+  assert.ok(complaintFirst.filter((item) => item.familiarity === 'Household Name').length >= 15);
+  assert.ok(complaintFirst.some((item) => item.elapsedMonths >= 84));
+});
+
 test('all specifically requested landmark cases are present', () => {
   const names = cases.map((item) => item.caseName);
   for (const landmark of ['Brown v. Board', 'Palsgraf v.', 'Erie Railroad', 'International Shoe', 'New York Times Company v. Sullivan', 'Loving v.', 'Tinker v.', 'Obergefell v.', 'Penn Central']) {
     assert.ok(names.some((name) => name.startsWith(landmark)), landmark);
+  }
+});
+
+test('recognizable complaint-to-resolution cases are present', () => {
+  const names = cases.map((item) => item.caseName);
+  for (const familiar of ['Brown v. Board', 'United States v. Microsoft', 'Dominion Voting Systems v. Fox', 'Deepwater Horizon', 'Trump University', 'Waymo LLC v. Uber', 'Epic Games, Inc. v. Apple', 'National Football League Players', 'Volkswagen AG', 'Apple Inc. v. Samsung']) {
+    assert.ok(names.some((name) => name.includes(familiar)), familiar);
   }
 });
 
