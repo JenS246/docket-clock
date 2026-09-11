@@ -1449,6 +1449,70 @@
     "lastReviewed": "2026-09-11"
   },
   {
+    "id": "curated-rufo-v-simpson-full-path",
+    "litigationId": "oj-simpson-civil-wrongful-death",
+    "caseName": "Sharon Rufo et al. v. Orenthal James Simpson",
+    "shortName": "O.J. Simpson Civil Case",
+    "citation": "86 Cal. App. 4th 573 (2001)",
+    "summary": "The families and estates of Ronald Goldman and Nicole Brown Simpson pursued civil claims against O.J. Simpson after the deaths that had led to his highly publicized criminal trial.",
+    "subject": "Wrongful Death and Personal Injury",
+    "categories": [
+      "Celebrity Disputes",
+      "Wrongful Death and Personal Injury",
+      "Civil Litigation Classics"
+    ],
+    "familiarity": "Household Name",
+    "startEvent": "Initial wrongful-death complaint filed",
+    "startDate": "1994-06-27",
+    "initialFilingDate": "1994-06-27",
+    "endpoint": "Punitive-damages verdict completed the civil trial",
+    "endpointDate": "1997-02-10",
+    "elapsedMonths": 31,
+    "events": [
+      {
+        "date": "1994-06-27",
+        "label": "Sharon Rufo filed the first wrongful-death complaint",
+        "court": "Superior Court of California, County of Los Angeles"
+      },
+      {
+        "date": "1995-05-04",
+        "label": "Fred and Kim Goldman filed a separate wrongful-death action",
+        "court": "Superior Court of California, County of Los Angeles"
+      },
+      {
+        "date": "1995-06-12",
+        "label": "Nicole Brown Simpson's estate filed its civil action",
+        "court": "Superior Court of California, County of Los Angeles"
+      },
+      {
+        "date": "1997-02-04",
+        "label": "Jury found Simpson civilly liable",
+        "court": "Superior Court of California, County of Los Angeles"
+      },
+      {
+        "date": "1997-02-10",
+        "label": "Jury awarded punitive damages, bringing the total award to $33.5 million",
+        "court": "Superior Court of California, County of Los Angeles"
+      }
+    ],
+    "courts": [
+      "Superior Court of California, County of Los Angeles",
+      "California Court of Appeal"
+    ],
+    "outcome": "The civil jury found Simpson liable and awarded the plaintiffs $33.5 million in compensatory and punitive damages; the judgments were later affirmed on appeal.",
+    "durationExplanation": "The consolidated civil litigation took thirty-one complete months from the first wrongful-death complaint to the verdict completing the damages phase.",
+    "teachingNote": "The civil case used a lower burden of proof than the criminal prosecution, and its clock began while that criminal case was still pending.",
+    "primarySources": [
+      "https://law.justia.com/cases/california/court-of-appeal/4th/86/573.html"
+    ],
+    "secondarySources": [
+      "https://www.upi.com/Archives/1996/09/16/Important-dates-in-the-OJ-Simpson-wrongful-death-civil-lawsuit/3392842846400/",
+      "https://apnews.com/article/cb5a6191218a2bd6c1d934912e1b2c89"
+    ],
+    "verificationStatus": "Verified",
+    "lastReviewed": "2026-09-11"
+  },
+  {
     "id": "reference-international-shoe-supreme-court",
     "litigationId": "international-shoe-v-washington",
     "caseName": "International Shoe Co. v. Washington",
@@ -10646,58 +10710,6 @@
     "primarySources": [
       "https://supreme.justia.com/cases/federal/us/555/555/",
       "https://www.oyez.org/cases/2008/06-1249"
-    ],
-    "secondarySources": [],
-    "verificationStatus": "Verified",
-    "lastReviewed": "2026-09-11"
-  },
-  {
-    "id": "scotus-55475",
-    "litigationId": "oyez-55475",
-    "caseName": "Riegel v. Medtronic, Inc.",
-    "shortName": "Riegel",
-    "citation": "552 U.S. 312 (2008)",
-    "summary": "During Charles Riegel's angioplasty, his surgeon used an Evergreen Balloon Catheter to dilate his coronary artery. The catheter burst, causing extreme complications. Riegel sued the manufacturer, Medtronic, for negligence in the design, manufacture, and labeling of the device. Medtronic argued that Riegel could not bring these state-law negligence claims because they were preempted by Section 360k(a) of the Medical Device Amendments (MDA) to the Food, Drug, and Cosmetic Act. The MDA establishes a federal regulatory process for ensuring the safety of medical devices, and it provides that no state may set requirements that differ from or add to the federal ones. The District Court dismissed Riegel's claims as preempted by the MDA. The U.S. Court of Appeals for the Second Circuit agreed that the suits based on medical devices like the Evergreen Balloon Catheter are preempted by the MDA. The catheter had been through the exceptionally rigorous \"premarket approval\" (PMA) process, by which federal regulators ensured that it met federal requirements. To allow state common-law suits for PMA-approved devices, the court ruled, would be to add a state requirement to the regulatory process despite the MDA's preemption clause.",
-    "subject": "Companies and Products",
-    "categories": [
-      "Companies and Products",
-      "Supreme Court Cases"
-    ],
-    "familiarity": "Surprising Case",
-    "startEvent": "First oral argument before the U.S. Supreme Court",
-    "startDate": "2007-12-04",
-    "initialFilingDate": null,
-    "initialFilingDateNote": "The source verifies this appellate interval but does not identify the original complaint date.",
-    "endpoint": "U.S. Supreme Court decision",
-    "endpointDate": "2008-02-20",
-    "elapsedMonths": 2,
-    "events": [
-      {
-        "date": "2007-06-25",
-        "label": "Granted",
-        "court": "U.S. Supreme Court"
-      },
-      {
-        "date": "2007-12-04",
-        "label": "Argued",
-        "court": "U.S. Supreme Court"
-      },
-      {
-        "date": "2008-02-20",
-        "label": "Decided",
-        "court": "U.S. Supreme Court"
-      }
-    ],
-    "courts": [
-      "United States Court of Appeals for the Second Circuit",
-      "U.S. Supreme Court"
-    ],
-    "outcome": "The Court, in an 8-1 decision, affirmed the Second Circuit and granted summary judgment in favor of Medtronic. The Court's opinion, written by Justice Antonin Scalia, noted that the MDA pre-empted state common law claims for defective devices such as this one. Riegel's negligence and strict liability claims relating to the safety and effectiveness of the catheter were based on New York's requirements and were therefore \"different from, or in addition to\" the federal requirements. Only Justice Ruth Bader Ginsburg dissented.",
-    "durationExplanation": "The measured interval covers the time between oral argument and the Court releasing its decision.",
-    "teachingNote": "A published appellate decision marks one procedural milestone. It does not necessarily end proceedings below.",
-    "primarySources": [
-      "https://supreme.justia.com/cases/federal/us/552/312/",
-      "https://www.oyez.org/cases/2007/06-179"
     ],
     "secondarySources": [],
     "verificationStatus": "Verified",

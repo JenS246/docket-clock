@@ -839,6 +839,38 @@
     "lastReviewed": "2026-09-11"
   },
   {
+    "id": "curated-rufo-v-simpson-full-path",
+    "litigationId": "oj-simpson-civil-wrongful-death",
+    "caseName": "Sharon Rufo et al. v. Orenthal James Simpson",
+    "shortName": "O.J. Simpson Civil Case",
+    "citation": "86 Cal. App. 4th 573 (2001)",
+    "summary": "The families and estates of Ronald Goldman and Nicole Brown Simpson pursued civil claims against O.J. Simpson after the deaths that had led to his highly publicized criminal trial.",
+    "subject": "Wrongful Death and Personal Injury",
+    "categories": ["Celebrity Disputes", "Wrongful Death and Personal Injury", "Civil Litigation Classics"],
+    "familiarity": "Household Name",
+    "startEvent": "Initial wrongful-death complaint filed",
+    "startDate": "1994-06-27",
+    "initialFilingDate": "1994-06-27",
+    "endpoint": "Punitive-damages verdict completed the civil trial",
+    "endpointDate": "1997-02-10",
+    "elapsedMonths": 31,
+    "events": [
+      { "date": "1994-06-27", "label": "Sharon Rufo filed the first wrongful-death complaint", "court": "Superior Court of California, County of Los Angeles" },
+      { "date": "1995-05-04", "label": "Fred and Kim Goldman filed a separate wrongful-death action", "court": "Superior Court of California, County of Los Angeles" },
+      { "date": "1995-06-12", "label": "Nicole Brown Simpson's estate filed its civil action", "court": "Superior Court of California, County of Los Angeles" },
+      { "date": "1997-02-04", "label": "Jury found Simpson civilly liable", "court": "Superior Court of California, County of Los Angeles" },
+      { "date": "1997-02-10", "label": "Jury awarded punitive damages, bringing the total award to $33.5 million", "court": "Superior Court of California, County of Los Angeles" }
+    ],
+    "courts": ["Superior Court of California, County of Los Angeles", "California Court of Appeal"],
+    "outcome": "The civil jury found Simpson liable and awarded the plaintiffs $33.5 million in compensatory and punitive damages; the judgments were later affirmed on appeal.",
+    "durationExplanation": "The consolidated civil litigation took thirty-one complete months from the first wrongful-death complaint to the verdict completing the damages phase.",
+    "teachingNote": "The civil case used a lower burden of proof than the criminal prosecution, and its clock began while that criminal case was still pending.",
+    "primarySources": ["https://law.justia.com/cases/california/court-of-appeal/4th/86/573.html"],
+    "secondarySources": ["https://www.upi.com/Archives/1996/09/16/Important-dates-in-the-OJ-Simpson-wrongful-death-civil-lawsuit/3392842846400/", "https://apnews.com/article/cb5a6191218a2bd6c1d934912e1b2c89"],
+    "verificationStatus": "Verified",
+    "lastReviewed": "2026-09-11"
+  },
+  {
     "id": "reference-international-shoe-supreme-court",
     "litigationId": "international-shoe-v-washington",
     "caseName": "International Shoe Co. v. Washington",

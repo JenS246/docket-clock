@@ -90,6 +90,7 @@ test('recognizable complaint-to-resolution cases are present', () => {
     'Terry Gene Bollea v. Gawker',
     'David Mueller v. Taylor Swift',
     'Scarlett Johansson v. The Walt Disney Company',
+    'Sharon Rufo et al. v. Orenthal James Simpson',
   ]) {
     assert.ok(names.some((name) => name.includes(familiar)), familiar);
   }
