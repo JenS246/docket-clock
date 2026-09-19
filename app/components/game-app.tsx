@@ -96,7 +96,7 @@ export default function GameApp() {
     <main className="round-shell" style={{ '--round-color': ROUND_COLORS[roundIndex % ROUND_COLORS.length] } as React.CSSProperties}>
       <header className="round-header">
         <button className="brand compact" type="button" onClick={() => setScreen('home')} aria-label="Return home"><span className="brand-mark" aria-hidden="true">12</span><span>DOCKET CLOCK</span></button>
-        <p><strong>Case {roundIndex + 1}</strong> of {gameCases.length}</p>
+        <p className="round-progress" aria-label={`Case ${roundIndex + 1} of ${gameCases.length}`}><strong>CASE {roundIndex + 1}</strong><span aria-hidden="true"> / {gameCases.length}</span></p>
         <p className="score">{results.reduce((sum, item) => sum + item.score, 0).toLocaleString()} pts</p>
       </header>
       <section className="case-layout" aria-labelledby="case-name">
@@ -104,6 +104,7 @@ export default function GameApp() {
           <p className="case-category">{currentCase.subject}</p>
           <p className="interval-badge">Complaint to {currentCase.endpoint}</p>
           <h1 id="case-name">{currentCase.caseName}</h1>
+          <p className="filing-date"><span>Complaint filed</span><time dateTime={currentCase.startDate}>{formatDate(currentCase.startDate)}</time></p>
           <p className="case-summary">{currentCase.summary}</p>
           <dl className="measure-card">
             <div><dt>Start</dt><dd>{currentCase.startEvent}<span>{formatDate(currentCase.startDate)}</span></dd></div>
@@ -112,9 +113,9 @@ export default function GameApp() {
         </article>
         {!result ? (
           <form className="guess-panel" onSubmit={(event) => { event.preventDefault(); submitGuess(); }}>
-            <label htmlFor="duration">How long from filing to this endpoint?</label>
+            <label htmlFor="duration">How long did justice take?</label>
             <output htmlFor="duration" className="guess-output" aria-live="polite"><strong>{Math.floor(guess / 12)}</strong> years <strong>{guess % 12}</strong> months</output>
-            <input id="duration" type="range" min="0" max="360" step="1" value={guess} onChange={(event) => setGuess(Number(event.target.value))} aria-valuetext={formatDuration(guess)} />
+            <input id="duration" type="range" min="0" max="360" step="1" value={guess} onChange={(event) => setGuess(Number(event.target.value))} aria-valuetext={formatDuration(guess)} style={{ '--guess-percent': `${guess / 3.6}%` } as React.CSSProperties} />
             <div className="range-labels" aria-hidden="true"><span>0</span><span>15 years</span><span>30 years</span></div>
             <button className="primary-button submit-button" type="submit">Submit guess</button>
             <button className="skip-button" type="button" onClick={skipCase}>I don&apos;t know this case</button>
@@ -132,20 +133,25 @@ function readRecent() {
 
 function RevealPanel({ result, onNext, isLast }: { result: RoundResult; onNext: () => void; isLast: boolean }) {
   const item = result.caseRecord;
+  const difference = Math.abs(item.elapsedMonths - result.guessedMonths);
   return (
     <section className="reveal-panel" aria-live="polite">
       <p className="reveal-kicker">{feedbackFor(item.elapsedMonths, result.guessedMonths)}</p>
       <div className="answer-grid">
-        <div><span>Your estimate</span><strong>{formatDuration(result.guessedMonths, true)}</strong></div>
-        <div><span>Actual time</span><strong>{formatDuration(item.elapsedMonths, true)}</strong></div>
-        <div><span>Points</span><strong>+{result.score.toLocaleString()}</strong></div>
+        <div className="guess-answer"><span>Your guess</span><strong>{formatDuration(result.guessedMonths, true)}</strong></div>
+        <div className="actual-answer"><span>Actual time</span><strong>{formatDuration(item.elapsedMonths, true)}</strong></div>
       </div>
+      <div className="reveal-summary"><strong>{difference === 0 ? 'Exact match' : `Off by ${formatDuration(difference, true)}`}</strong><span>+{result.score.toLocaleString()} points</span></div>
       <p className="measurement">This round starts with the filing on {formatDate(item.startDate)} and runs to {item.endpoint.toLowerCase()} on {formatDate(item.endpointDate)}.</p>
-      <ol className="timeline" aria-label="Procedural timeline">{item.events.map((event, index) => <li key={`${event.date}-${index}`}><time dateTime={event.date}>{formatDate(event.date)}</time><strong>{event.label}</strong><span>{event.court}</span></li>)}</ol>
+      <ol className="timeline" aria-label="Procedural timeline">{item.events.map((event, index) => {
+        const isFirst = index === 0;
+        const isFinal = index === item.events.length - 1;
+        return <li className={isFirst ? 'timeline-start' : isFinal ? 'timeline-final' : 'timeline-event'} key={`${event.date}-${index}`}><time dateTime={event.date}>{formatDate(event.date)}</time><div><span className="timeline-role">{isFirst ? 'Complaint filed' : isFinal ? 'Decision or resolution' : 'Case event'}</span><strong>{event.label}</strong><span className="timeline-court">{event.court}</span></div></li>;
+      })}</ol>
       <details><summary>Outcome and timing</summary><p>{item.outcome}</p><p>{item.durationExplanation}</p></details>
       <aside className="teaching-note"><strong>Litigation note</strong><p>{item.teachingNote}</p></aside>
       <div className="source-list"><strong>Sources</strong>{[...item.primarySources, ...item.secondarySources].map((url, index) => <a key={url} href={url} target="_blank" rel="noreferrer">Source {index + 1}</a>)}</div>
-      <button className="primary-button next-button" type="button" onClick={onNext}>{isLast ? 'See results' : 'Next case'}</button>
+      <button className="primary-button next-button" type="button" onClick={onNext}>{isLast ? 'See results →' : 'Next case →'}</button>
     </section>
   );
 }
