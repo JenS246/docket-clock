@@ -18,7 +18,6 @@ import CaseManager from './case-manager';
 import HomeScreen from './home-screen';
 
 const CASES = caseBank as CaseRecord[];
-const COMPLAINT_FIRST_COUNT = CASES.filter((item) => item.initialFilingDate && item.startDate === item.initialFilingDate).length;
 const ROUND_COLORS = ['#ff5d45', '#7367f0', '#009b77', '#ed3f82', '#147cc1', '#dc7d09'];
 type Screen = 'home' | 'round' | 'results' | 'library' | 'manage';
 
@@ -31,7 +30,6 @@ export default function GameApp() {
   const [guess, setGuess] = useState(24);
   const [result, setResult] = useState<RoundResult | null>(null);
   const [results, setResults] = useState<RoundResult[]>([]);
-  const [shareStatus, setShareStatus] = useState('');
 
   const startGame = () => {
     const recent = readRecent();
@@ -40,7 +38,6 @@ export default function GameApp() {
     setGuess(24);
     setResult(null);
     setResults([]);
-    setShareStatus('');
     setScreen('round');
   };
 
@@ -70,32 +67,18 @@ export default function GameApp() {
     if (replacement) setGameCases((items) => items.map((item, index) => index === roundIndex ? replacement : item));
   };
 
-  const shareResults = async () => {
-    const summary = summarizeGame(results);
-    if (!summary) return;
-    const text = `I scored ${summary.totalScore.toLocaleString()} in Docket Clock with ${summary.averageAccuracy}% average accuracy. How well do you know the pace of civil litigation?`;
-    const canShare = typeof navigator.share === 'function';
-    try {
-      if (canShare) await navigator.share({ title: 'Docket Clock results', text, url: window.location.href });
-      else await navigator.clipboard.writeText(`${text} ${window.location.href}`);
-      setShareStatus(canShare ? 'Shared.' : 'Results copied.');
-    } catch {
-      setShareStatus('Sharing canceled.');
-    }
-  };
-
   if (screen === 'home') {
-    return <HomeScreen caseCount={COMPLAINT_FIRST_COUNT} category={category} gameLength={gameLength} onCategory={setCategory} onExplore={() => setScreen('library')} onLength={setGameLength} onManage={() => setScreen('manage')} onStart={startGame} />;
+    return <HomeScreen category={category} gameLength={gameLength} onCategory={setCategory} onExplore={() => setScreen('library')} onLength={setGameLength} onManage={() => setScreen('manage')} onStart={startGame} />;
   }
   if (screen === 'library') return <CaseLibrary onBack={() => setScreen('home')} />;
   if (screen === 'manage') return <CaseManager onBack={() => setScreen('home')} />;
-  if (screen === 'results') return <ResultsScreen results={results} shareStatus={shareStatus} onExplore={() => setScreen('library')} onHome={() => setScreen('home')} onPlayAgain={startGame} onShare={shareResults} />;
+  if (screen === 'results') return <ResultsScreen results={results} onExplore={() => setScreen('library')} onHome={() => setScreen('home')} onPlayAgain={startGame} />;
   if (!currentCase) return null;
 
   return (
     <main className="round-shell" style={{ '--round-color': ROUND_COLORS[roundIndex % ROUND_COLORS.length] } as React.CSSProperties}>
       <header className="round-header">
-        <button className="brand compact" type="button" onClick={() => setScreen('home')} aria-label="Return home"><span className="brand-mark" aria-hidden="true">12</span><span>DOCKET CLOCK</span></button>
+        <button className="brand compact" type="button" onClick={() => setScreen('home')} aria-label="Return home"><span className="brand-mark" aria-hidden="true" /><span>Docket Clock</span></button>
         <p className="round-progress" aria-label={`Case ${roundIndex + 1} of ${gameCases.length}`}><strong>CASE {roundIndex + 1}</strong><span aria-hidden="true"> / {gameCases.length}</span></p>
         <p className="score">{results.reduce((sum, item) => sum + item.score, 0).toLocaleString()} pts</p>
       </header>
@@ -156,11 +139,11 @@ function RevealPanel({ result, onNext, isLast }: { result: RoundResult; onNext: 
   );
 }
 
-function ResultsScreen({ results, shareStatus, onExplore, onHome, onPlayAgain, onShare }: { results: RoundResult[]; shareStatus: string; onExplore: () => void; onHome: () => void; onPlayAgain: () => void; onShare: () => void }) {
+function ResultsScreen({ results, onExplore, onHome, onPlayAgain }: { results: RoundResult[]; onExplore: () => void; onHome: () => void; onPlayAgain: () => void }) {
   const summary = summarizeGame(results);
   if (!summary) return null;
   return (
-    <main className="results-shell"><button className="brand compact" type="button" onClick={onHome}><span className="brand-mark" aria-hidden="true">12</span><span>DOCKET CLOCK</span></button><section className="results-card"><p className="eyebrow">Docket closed</p><h1>{summary.totalScore.toLocaleString()} points</h1><p className="results-lede">Your average accuracy was <strong>{summary.averageAccuracy}%</strong>.</p><div className="stats-grid"><ResultStat label="Closest guess" value={summary.closest.caseRecord.shortName} /><ResultStat label="Underestimated most" value={summary.underestimatedMost?.caseRecord.shortName || 'None'} /><ResultStat label="Overestimated most" value={summary.overestimatedMost?.caseRecord.shortName || 'None'} /><ResultStat label="Longest encountered" value={formatDuration(summary.longest.caseRecord.elapsedMonths, true)} /><ResultStat label="Shortest encountered" value={formatDuration(summary.shortest.caseRecord.elapsedMonths, true)} /></div><div className="result-actions"><button className="primary-button" type="button" onClick={onPlayAgain}>Play again</button><button className="secondary-button" type="button" onClick={onHome}>Try different cases</button><button className="secondary-button" type="button" onClick={onShare}>Share results</button><button className="text-button" type="button" onClick={onExplore}>Explore the cases</button></div><p className="share-status" aria-live="polite">{shareStatus}</p></section></main>
+    <main className="results-shell"><button className="brand compact" type="button" onClick={onHome}><span className="brand-mark" aria-hidden="true" /><span>Docket Clock</span></button><section className="results-card"><p className="eyebrow">Docket closed</p><h1>{summary.totalScore.toLocaleString()} points</h1><p className="results-lede">Your average accuracy was <strong>{summary.averageAccuracy}%</strong>.</p><div className="stats-grid"><ResultStat label="Closest guess" value={summary.closest.caseRecord.shortName} /><ResultStat label="Underestimated most" value={summary.underestimatedMost?.caseRecord.shortName || 'None'} /><ResultStat label="Overestimated most" value={summary.overestimatedMost?.caseRecord.shortName || 'None'} /><ResultStat label="Longest encountered" value={formatDuration(summary.longest.caseRecord.elapsedMonths, true)} /><ResultStat label="Shortest encountered" value={formatDuration(summary.shortest.caseRecord.elapsedMonths, true)} /></div><div className="result-actions"><button className="primary-button" type="button" onClick={onPlayAgain}>Play again</button><button className="secondary-button" type="button" onClick={onHome}>Try different cases</button><button className="text-button" type="button" onClick={onExplore}>Explore the cases</button></div></section></main>
   );
 }
 

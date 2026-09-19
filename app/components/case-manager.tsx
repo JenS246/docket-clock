@@ -43,5 +43,5 @@ export default function CaseManager({ onBack }: { onBack: () => void }) {
 }
 
 function UtilityHeader({ title, onBack }: { title: string; onBack: () => void }) {
-  return <header className="utility-header"><button className="brand compact" type="button" onClick={onBack}><span className="brand-mark" aria-hidden="true">12</span><span>DOCKET CLOCK</span></button><h1>{title}</h1><button className="text-button" type="button" onClick={onBack}>Back to game</button></header>;
+  return <header className="utility-header"><button className="brand compact" type="button" onClick={onBack}><span className="brand-mark" aria-hidden="true" /><span>Docket Clock</span></button><h1>{title}</h1><button className="text-button" type="button" onClick={onBack}>Back to game</button></header>;
 }
