@@ -142,7 +142,7 @@ function RevealPanel({ result, onNext, isLast }: { result: RoundResult; onNext: 
         <div className="actual-answer"><span>Actual time</span><strong>{formatDuration(item.elapsedMonths, true)}</strong></div>
       </div>
       <div className="reveal-summary"><strong>{difference === 0 ? 'Exact match' : `Off by ${formatDuration(difference, true)}`}</strong><span>+{result.score.toLocaleString()} points</span></div>
-      <p className="measurement">This round starts with the filing on {formatDate(item.startDate)} and runs to {item.endpoint.toLowerCase()} on {formatDate(item.endpointDate)}.</p>
+      <p className="measurement">This round starts with the filing on {formatDate(item.startDate)} and ends with this event: {item.endpoint} on {formatDate(item.endpointDate)}.</p>
       <ol className="timeline" aria-label="Procedural timeline">{item.events.map((event, index) => {
         const isFirst = index === 0;
         const isFinal = index === item.events.length - 1;
